@@ -174,6 +174,8 @@ static volatile unsigned char radio_is_on = 0;
 #define PRINTDEBUG(...)
 #endif
 
+#define DEBUGFLOWSIZE 128
+
 /* Flag that is used to keep track of whether or not we are snooping
    for announcements from neighbors. */
 static volatile uint8_t is_snooping;

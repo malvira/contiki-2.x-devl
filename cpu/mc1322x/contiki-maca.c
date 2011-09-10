@@ -53,6 +53,8 @@
 #define PRINTF(...)
 #endif
 
+#define DEBUGFLOWSIZE 128
+
 #ifndef CONTIKI_MACA_PREPEND_BYTE
 #define CONTIKI_MACA_PREPEND_BYTE 0xff
 #endif

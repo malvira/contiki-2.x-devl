@@ -45,6 +45,8 @@
 #define PRINTF(...) printf(__VA_ARGS__)
 #endif
 
+#define DEBUGFLOWSIZE 128
+
 #ifndef MACA_BOUND_CHECK
 #define MACA_BOUND_CHECK 0
 #endif

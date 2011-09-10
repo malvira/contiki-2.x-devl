@@ -97,6 +97,11 @@ void rtimercycle(void) {rtimerflag=1;}
 #define PRINTLLADDR(addr)
 #endif
 
+#define DEBUGFLOWSIZE 128
+#if DEBUGFLOWSIZE
+uint8_t debugflowsize,debugflow[DEBUGFLOWSIZE];
+#endif
+
 #ifndef RIMEADDR_NVM
 #define RIMEADDR_NVM 0x1E000
 #endif
@@ -546,6 +551,14 @@ uint32_t p=(uint32_t)&__heap_end__-4;
 	  }
 	         
 	  process_run();
+
+#if DEBUGFLOWSIZE
+	  if (debugflowsize) {
+		  debugflow[debugflowsize]=0;
+		  printf("%s\n",debugflow);
+		  debugflowsize=0;
+	  }
+#endif
 
 #if PERIODICPRINTS
 #if TESTRTIMER

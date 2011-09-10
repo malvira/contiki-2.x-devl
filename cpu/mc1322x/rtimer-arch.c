@@ -57,6 +57,8 @@
 #define PRINTF(...)
 #endif
 
+#define DEBUGFLOWSIZE 128
+
 void rtc_isr(void) {
 	PRINTF("rtc_wu_irq\n\r");
 	PRINTF("now is %u\n", rtimer_arch_now());
