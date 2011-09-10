@@ -322,7 +322,9 @@ powercycle(struct rtimer *t, void *ptr)
     static rtimer_clock_t t0;
     static uint8_t count;
 
-    cycle_start += CYCLE_TIME;
+//  cycle_start += CYCLE_TIME;  //once everything is working
+    cycle_start = RTIMER_NOW();  //Allows missing a cycle without screwup
+
 
     if(WITH_STREAMING && is_streaming) {
       if(!RTIMER_CLOCK_LT(RTIMER_NOW(), stream_until)) {
