@@ -47,6 +47,10 @@ typedef int32_t s32_t;
 /* Pre-allocated memory for loadable modules heap space (in bytes)*/
 #define MMEM_CONF_SIZE 256
 
+/* Core rtimer.h defaults to 16 bit timer unless RTIMER_CLOCK_LT is defined */
+typedef unsigned long rtimer_clock_t;
+#define RTIMER_CLOCK_LT(a,b)     ((signed long)((a)-(b)) < 0)
+
 typedef uint32_t clock_time_t;
 typedef unsigned char u8_t;
 typedef unsigned short u16_t;
