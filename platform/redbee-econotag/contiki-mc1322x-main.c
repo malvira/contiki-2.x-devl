@@ -538,7 +538,7 @@ uint32_t p=(uint32_t)&__heap_end__-4;
  
   /* Main scheduler loop */
   while(1) {
-	  check_maca();
+//      check_maca();  //note I have commented this out, might be a timing consideration. Seems to work fine without it.
 
 #if (USE_WDT == 1)
 	  cop_service();
