@@ -133,6 +133,8 @@ typedef unsigned long rtimer_clock_t;
 #else /* WITH_UIP6 */
 /* Network setup for non-IPv6 (rime). */
 
+
+
 #define NETSTACK_CONF_NETWORK rime_driver
 #define NETSTACK_CONF_MAC     csma_driver
 #define NETSTACK_CONF_RDC     sicslowmac_driver
