@@ -73,8 +73,8 @@
 #ifndef NETSTACK_CONF_RDC
 /* contikimac  hasn't been well tested */
 /* default to nullrdc for now */
-//#define NETSTACK_CONF_RDC     contikimac_driver
-#define NETSTACK_CONF_RDC     nullrdc_driver
+#define NETSTACK_CONF_RDC     contikimac_driver
+//#define NETSTACK_CONF_RDC     nullrdc_driver
 #endif /* NETSTACK_CONF_RDC */
 
 #ifndef NETSTACK_CONF_RDC_CHANNEL_CHECK_RATE
