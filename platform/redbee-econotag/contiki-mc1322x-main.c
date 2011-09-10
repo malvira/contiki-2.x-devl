@@ -300,11 +300,11 @@ set_rimeaddr(rimeaddr_t *addr)
 
 	rimeaddr_copy(addr,&rimeaddr_null);
 
-	for(i=0; i<RIMEADDR_CONF_SIZE; i++) {		
+	for(i=0; i<RIMEADDR_SIZE; i++) {		
 		addr->u8[i] = buf[i];
 	}
 
-	if (memcmp(addr, &addr_ff, RIMEADDR_CONF_SIZE)==0) {
+	if (memcmp(addr, &addr_ff, RIMEADDR_SIZE)==0) {
 
 		//set addr to EUI64
 #ifdef IAB		
