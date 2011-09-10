@@ -69,6 +69,8 @@ void rtc_isr(void) {
 void
 rtimer_arch_init(void)
 {
+	*((volatile uint32_t *) (0x80020014)) = 0x3df;
+//*INTTYPE=0x3df; //all interrupts fast except timer
 }
 
 void
