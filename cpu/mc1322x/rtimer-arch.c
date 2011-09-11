@@ -64,6 +64,7 @@ void rtc_isr(void) {
 	disable_rtc_wu_irq();
 	rtimer_run_next();
 	clear_rtc_wu_evt();
+	while (rtc_wu_evt()) {};
 }
 
 void
