@@ -127,7 +127,6 @@ void check_maca(void) {
 #if DEBUG_MACA
 	volatile uint32_t count;
 #endif 
-	
 
 	/* if *MACA_CLK == last_time */
 	/* try waiting for one clock period */
@@ -135,6 +134,7 @@ void check_maca(void) {
 	for(i=0; (i < 1024) && (*MACA_CLK == last_time); i++) { continue; }
 
 	if(*MACA_CLK == last_time) {
+		GPIO->DATA_SET.GPIO_43 = 1;
 		PRINTF("check maca: maca_clk stopped, restarting\n");
 		/* clock isn't running */
 		ResumeMACASync();
@@ -142,6 +142,7 @@ void check_maca(void) {
 	} else {
 		if((last_time > (*MACA_SFTCLK + RECV_SOFTIMEOUT)) &&
 		   (last_time > (*MACA_CPLCLK + CPL_TIMEOUT))) {
+			GPIO->DATA_SET.GPIO_43 = 1;
 			PRINTF("check maca: complete clocks expired\n");
 			/* all complete clocks have expired */
 			/* check that maca entry is changing */
@@ -173,6 +174,7 @@ void check_maca(void) {
 		if(bit_is_set(*NIPEND, INT_NUM_MACA)) { *INTFRC = (1 << INT_NUM_MACA); }
 	}
 #endif /* DEBUG_MACA */
+	GPIO->DATA_RESET.GPIO_43 = 1;
 	irq_restore();
 }
 
