@@ -205,6 +205,9 @@ init_lowlevel(void)
 
 	maca_init();
 
+	maca_off();
+	while(1) {};
+
 	set_channel(RF_CHANNEL - 11); /* channel 11 */
 	set_power(0x12); /* 0x12 is the highest, not documented */
 
@@ -340,6 +343,10 @@ main(void)
 {
 	volatile uint32_t i;
 	rimeaddr_t addr;
+
+	GPIO->FUNC_SEL.GPIO_44 = 2;
+	GPIO->PAD_DIR.GPIO_44 = 1;
+
 
 	/* Initialize hardware and */
 	/* go into user mode */
