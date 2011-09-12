@@ -91,8 +91,6 @@ const struct radio_driver contiki_maca_driver =
 	.off = contiki_maca_off_request,
 };
 
-static volatile uint8_t contiki_maca_request_on = 0;
-static volatile uint8_t contiki_maca_request_off = 0;
 
 static process_event_t event_data_ready;
 
@@ -107,9 +105,8 @@ int contiki_maca_init(void) {
 	return 1;
 }
 
-/* CCA not implemented */
 int contiki_maca_channel_clear(void) {
-	return 1;
+	return cca();
 }
 
 /* not sure how to check if a reception is in progress */
@@ -126,14 +123,14 @@ int contiki_maca_pending_packet(void) {
 }
 
 int contiki_maca_on_request(void) {
-	contiki_maca_request_on = 1;
-	contiki_maca_request_off = 0;
+	GPIO->DATA_SET.GPIO_04 = 1;
+	maca_on();
 	return 1;
 }
 
 int contiki_maca_off_request(void) {
-	contiki_maca_request_on = 0;
-	contiki_maca_request_off = 1;
+	GPIO->DATA_RESET.GPIO_04 = 1;
+//	maca_off();
 	return 1;
 }
 
@@ -215,6 +212,12 @@ int contiki_maca_transmit(unsigned short transmit_len) {
 #if BLOCKING_TX
 	tx_complete = 0;
 #endif
+
+	if(maca_pwr == 0) 
+	{
+		maca_on();
+	}
+
 	if(p = get_free_packet()) {
 		p->offset = prepped_p.offset; 
 		p->length = prepped_p.length; 
@@ -229,7 +232,7 @@ int contiki_maca_transmit(unsigned short transmit_len) {
 
 #if BLOCKING_TX
 	/* block until tx_complete, set by contiki_maca_tx_callback */
- 	while(!tx_complete && (tx_head != 0));
+ 	while(maca_pwr && !tx_complete && (tx_head != 0));
 #endif	
 }
 
@@ -260,17 +263,6 @@ PROCESS_THREAD(contiki_maca_process, ev, data)
 
 	while (1) {
 		PROCESS_YIELD();
-
-		/* check if there is a request to turn the radio on or off */
-		if(contiki_maca_request_on == 1) {
-			contiki_maca_request_on = 0;
-//			maca_on();
- 		}
-
-		if(contiki_maca_request_off == 1) {
-			contiki_maca_request_off = 0;
-//			maca_off();
- 		}
 
 		if (rx_head != NULL) {
 			packetbuf_clear();

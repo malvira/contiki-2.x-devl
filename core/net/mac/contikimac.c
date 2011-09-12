@@ -67,7 +67,7 @@
 #define WITH_CONTIKIMAC_HEADER       1
 #endif
 #ifndef WITH_FAST_SLEEP
-#define WITH_FAST_SLEEP              1
+#define WITH_FAST_SLEEP              0
 #endif
 
 #if NETSTACK_RDC_CHANNEL_CHECK_RATE >= 64

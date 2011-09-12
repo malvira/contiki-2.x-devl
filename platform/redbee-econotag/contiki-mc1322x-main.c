@@ -205,6 +205,9 @@ init_lowlevel(void)
 
 	maca_init();
 
+        //make maca a fast interrupt
+	*((volatile uint32_t *) (0x80020014)) = (1 << 7);
+
 	set_channel(RF_CHANNEL - 11); /* channel 11 */
 	set_power(0x12); /* 0x12 is the highest, not documented */
 
@@ -385,9 +388,18 @@ uint32_t p=(uint32_t)&__heap_end__-4;
 	GPIO->FUNC_SEL.GPIO_44 = 2;
 	GPIO->PAD_DIR.GPIO_44 = 1;
 
+	GPIO->FUNC_SEL.GPIO_45 = 3;
+	GPIO->PAD_DIR.GPIO_45 = 1;
+
 	/* debug io */
 	GPIO->PAD_DIR_SET.GPIO_43 = 1;
 	GPIO->DATA_RESET.GPIO_43 = 1;
+
+	GPIO->PAD_DIR_SET.GPIO_04 = 1;
+	GPIO->DATA_RESET.GPIO_04 = 1;
+
+	GPIO->PAD_DIR_SET.GPIO_06 = 1;
+	GPIO->DATA_RESET.GPIO_06 = 1;
 
 	/* Process subsystem */
 	process_init();

@@ -61,7 +61,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // Stack Sizes
         .set  UND_STACK_SIZE, 0x00000004
         .set  ABT_STACK_SIZE, 0x00000004
-        .set  FIQ_STACK_SIZE, 0x00000004
+        .set  FIQ_STACK_SIZE, 0x00000080
         .set  IRQ_STACK_SIZE, 0X00000080
         .set  SVC_STACK_SIZE, 0x00000004
 
@@ -168,7 +168,7 @@ _swi:   .word __swi                     // SWI
 _pabt:  .word __pabt                    // program abort
 _dabt:  .word __dabt                    // data abort
 _irq:   .word irq                       // IRQ
-_fiq:   .word __fiq                     // FIQ
+_fiq:   .word fiq                     // FIQ
 	
 __undf: b     .                         // undefined
 __swi:  b     .                         // SWI
@@ -176,7 +176,7 @@ __pabt: b     .                         // program abort
 __dabt: b     .                         // data abort
 /* IRQ handler set in isr.c */
 //__irq:  b     .                         // IRQ
-__fiq:  b     .                         // FIQ
+//__fiq:  b     .                         // FIQ
 
 /*
  * These are defined in the board-specific linker script.

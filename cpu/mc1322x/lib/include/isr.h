@@ -98,6 +98,7 @@ static volatile struct ITC_struct * const ITC = (void *) (INTBASE);
 #define INTSRC_OFF           (0x30)
 #define INTFRC_OFF           (0x34)
 #define NIPEND_OFF           (0x38)
+#define FIPEND_OFF           (0x3c)
 
 static volatile uint32_t * const INTCNTL   =   ((volatile uint32_t *) (INTBASE + INTCNTL_OFF));
 static volatile uint32_t * const INTENNUM  =   ((volatile uint32_t *) (INTBASE + INTENNUM_OFF));
@@ -106,6 +107,7 @@ static volatile uint32_t * const INTENABLE =   ((volatile uint32_t *) (INTBASE +
 static volatile uint32_t * const INTSRC    =   ((volatile uint32_t *) (INTBASE + INTSRC_OFF));
 static volatile uint32_t * const INTFRC    =   ((volatile uint32_t *) (INTBASE + INTFRC_OFF));
 static volatile uint32_t * const NIPEND    =   ((volatile uint32_t *) (INTBASE + NIPEND_OFF));
+static volatile uint32_t * const FIPEND    =   ((volatile uint32_t *) (INTBASE + FIPEND_OFF));
 
 enum interrupt_nums {
 	INT_NUM_ASM = 0,

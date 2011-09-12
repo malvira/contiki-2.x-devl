@@ -49,6 +49,20 @@ void irq_register_timer_handler(int timer, void (*isr)(void))
 }
 
 
+__attribute__ ((section (".fiq")))
+__attribute__ ((interrupt("FIQ"))) 
+void fiq(void)
+{
+	uint32_t pending;
+
+	while ((pending = *FIPEND)) {
+		if(bit_is_set(pending, INT_NUM_MACA)) {
+	 		if(maca_isr != 0) { maca_isr(); } 
+		}
+		*INTFRC = 0; /* stop forcing interrupts */
+	}	
+}
+
 __attribute__ ((section (".irq")))
 __attribute__ ((interrupt("IRQ"))) 
 void irq(void)

@@ -67,6 +67,19 @@ extern volatile uint8_t fcs_mode;
 extern volatile uint8_t prm_mode;
 #define set_prm_mode(x) prm_mode = (x)
 
+enum posts {
+	NO_POST = 0,
+	TX_POST,
+	RX_POST,
+	CCA_POST,
+	MAX_POST,
+};
+
+extern volatile uint8_t maca_pwr;
+extern volatile uint8_t maca_busy;
+extern volatile uint8_t last_post;
+extern volatile uint32_t last_post_time;
+
 /* maca packet interface */
 void tx_packet(volatile packet_t *p);
 volatile packet_t* rx_packet(void);
