@@ -496,6 +496,8 @@ uint32_t p=(uint32_t)&__heap_end__-4;
 	  addr.u8[5] << 16 |
 	  addr.u8[6] << 8 |
 	  addr.u8[7];
+  mac_lo = *MACA_MAC64LO;
+  mac_hi = *MACA_MAC64HI;
   PRINTF("setting panid 0x%04x\n\r", *MACA_MACPANID);
   PRINTF("setting short mac 0x%04x\n\r", *MACA_MAC16ADDR);
   PRINTF("setting long mac 0x%08x_%08x\n\r", *MACA_MAC64HI, *MACA_MAC64LO);

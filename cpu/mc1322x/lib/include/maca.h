@@ -80,6 +80,9 @@ extern volatile uint8_t maca_busy;
 extern volatile uint8_t last_post;
 extern volatile uint32_t last_post_time;
 
+extern volatile uint32_t mac_lo;
+extern volatile uint32_t mac_hi;
+
 /* maca packet interface */
 void tx_packet(volatile packet_t *p);
 volatile packet_t* rx_packet(void);

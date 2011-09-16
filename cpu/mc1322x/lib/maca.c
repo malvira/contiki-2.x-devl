@@ -110,6 +110,9 @@ volatile uint8_t maca_pwr = 0;
 volatile uint8_t maca_busy = 0;
 volatile uint8_t do_cca = 0;
 
+volatile uint32_t mac_lo;
+volatile uint32_t mac_hi;
+
 /* call periodically to */
 /* check that maca_entry is changing */
 /* if it is not, it will do a manual call to maca_isr which should */
@@ -118,6 +121,7 @@ volatile uint8_t do_cca = 0;
 /* it calls redoes the maca intialization but _DOES NOT_ free all packets */ 
 
 void check_maca(void) {
+	if(maca_pwr == 0) return;
 	safe_irq_disable(MACA);
 	static volatile uint32_t last_time;
 	static volatile uint32_t last_entry;
@@ -125,8 +129,6 @@ void check_maca(void) {
 #if DEBUG_MACA
 	volatile uint32_t count;
 #endif 
-
-	if(maca_pwr == 0) return;
 
 	/* if *MACA_CLK == last_time */
 	/* try waiting for one clock period */
@@ -933,22 +935,33 @@ const uint32_t data_reg_rep[MAX_DATA] = { 0x00180012,0x00000605,0x00000504,0x000
 
 void maca_off(void) {
 	GPIO->DATA_RESET.GPIO_45 = 1;
-	maca_pwr = 0;
 	disable_irq(MACA); // this line bad
 	/* turn off the radio regulators */
-	reg(0x80003048) =  0x00000f00; // this line ok
+	reg(0x80003048) =  0x00000f00;
 	/* hold the maca in reset */
-	maca_reset = maca_reset_rst;  //this line bad
+	maca_reset = maca_reset_rst;
+	maca_pwr = 0;
 }
 
 void maca_on(void) {
-	maca_pwr = 1;
+	if (maca_pwr != 0) return;
 	/* turn the radio regulators back on */
 	reg(0x80003048) =  0x00000f78; 
-	/* reinitialize the phy */
-	reset_maca();
-	init_phy();
-	
+
+	*MACA_RESET = (1 << maca_reset_clkon);
+	*MACA_CONTROL = maca_ctrl_seq_nop;
+	/* Clear all interrupts. */
+	*MACA_CLRIRQ = 0xffff;
+
+	maca_pwr = 1;
+
+	*MACA_MACPANID = 0xcdab; /* this is the hardcoded contiki pan, register is
+				    PACKET order */
+	*MACA_MAC16ADDR = 0xffff; /* short addressing isn't used, set this to 0xffff
+				     for now */
+	*MACA_MAC64HI= mac_hi;
+	*MACA_MAC64LO = mac_lo;
+
 	enable_irq(MACA);
 	*INTFRC = (1 << INT_NUM_MACA);
 }
