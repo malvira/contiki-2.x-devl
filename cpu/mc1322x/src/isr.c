@@ -82,9 +82,9 @@ void irq(void)
 			if (tmr_isr_funcs[3] != 0) { (tmr_isr_funcs[3])(); }
 		}
 
-		if(bit_is_set(pending, INT_NUM_MACA)) {
-	 		if(maca_isr != 0) { maca_isr(); } 
-		}
+//		if(bit_is_set(pending, INT_NUM_MACA)) {
+//	 		if(maca_isr != 0) { maca_isr(); } 
+//		}
 		if(bit_is_set(pending, INT_NUM_UART1)) {
 	 		if(uart1_isr != 0) { uart1_isr(); } 
 		}

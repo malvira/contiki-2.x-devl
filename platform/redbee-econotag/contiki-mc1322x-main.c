@@ -382,14 +382,15 @@ uint32_t p=(uint32_t)&__heap_end__-4;
 	clock_init();	
 
 	/* LED driver */
-	leds_init();
+//	leds_init();
 
 	/* control TX_ON with the radio */
 	GPIO->FUNC_SEL.GPIO_44 = 2;
 	GPIO->PAD_DIR.GPIO_44 = 1;
 
-	GPIO->FUNC_SEL.GPIO_45 = 3;
+//	GPIO->FUNC_SEL.GPIO_45 = 3;
 	GPIO->PAD_DIR.GPIO_45 = 1;
+	GPIO->DATA_RESET.GPIO_45 = 1;
 
 	/* debug io */
 	GPIO->PAD_DIR_SET.GPIO_43 = 1;
@@ -551,7 +552,11 @@ uint32_t p=(uint32_t)&__heap_end__-4;
  
   /* Main scheduler loop */
   while(1) {
+	  volatile uint8_t i;
 	  check_maca();
+
+//	  cca();
+//	  for (i=1;i<10;i++) { cca();}
 
 #if (USE_WDT == 1)
 	  cop_service();
