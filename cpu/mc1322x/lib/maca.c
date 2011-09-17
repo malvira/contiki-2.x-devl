@@ -354,6 +354,7 @@ volatile packet_t* get_free_packet(void) {
 void post_receive(void) {
 	GPIO->DATA_SET.GPIO_45 = 1;
 	last_post = RX_POST;
+	last_post_time = *MACA_CLK;
 	/* this sets the rxlen field */
 	/* this is undocumented but very important */
 	/* you will not receive anything without setting it */
@@ -445,6 +446,7 @@ void post_tx(void) {
 	GPIO->DATA_RESET.GPIO_45 = 1;
 	disable_irq(MACA);
 	last_post = TX_POST;
+	last_post_time = *MACA_CLK;
 	dma_tx = tx_head; 
 #if PACKET_STATS
 	dma_tx->post_tx++;

@@ -107,6 +107,7 @@ int contiki_maca_init(void) {
 
 int contiki_maca_channel_clear(void) {
 	return cca();
+//	return 1;
 }
 
 /* not sure how to check if a reception is in progress */
