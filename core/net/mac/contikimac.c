@@ -98,10 +98,10 @@ struct hdr {
 #define CCA_COUNT_MAX                      2
 
 /* CCA_CHECK_TIME is the time it takes to perform a CCA check. */
-#define CCA_CHECK_TIME                     RTIMER_ARCH_SECOND / 8192
+#define CCA_CHECK_TIME                     RTIMER_ARCH_SECOND / 7407
 
 /* CCA_SLEEP_TIME is the time between two successive CCA checks. */
-#define CCA_SLEEP_TIME                     RTIMER_ARCH_SECOND / 2000
+#define CCA_SLEEP_TIME                     RTIMER_ARCH_SECOND / 6849
 
 /* CHECK_TIME is the total time it takes to perform CCA_COUNT_MAX
    CCAs. */
@@ -138,7 +138,7 @@ struct hdr {
 /* AFTER_ACK_DETECTECT_WAIT_TIME is the time to wait after a potential
    ACK packet has been detected until we can read it out from the
    radio. */
-#define AFTER_ACK_DETECTECT_WAIT_TIME      RTIMER_ARCH_SECOND / 1500
+#define AFTER_ACK_DETECTECT_WAIT_TIME      RTIMER_ARCH_SECOND / RTIMER_ARCH_SECOND
 
 /* MAX_PHASE_STROBE_TIME is the time that we transmit repeated packets
    to a neighbor for which we have a phase lock. */
@@ -371,11 +371,11 @@ powercycle(struct rtimer *t, void *ptr)
              received (as indicated by the
              NETSTACK_RADIO.pending_packet() function), we stop
              snooping. */
-          if(NETSTACK_RADIO.channel_clear()) {
-            ++silence_periods;
-          } else {
-            silence_periods = 0;
-          }
+//          if(NETSTACK_RADIO.channel_clear()) {
+//            ++silence_periods;
+//          } else {
+//            silence_periods = 0;
+//          }
           
           ++periods;
         

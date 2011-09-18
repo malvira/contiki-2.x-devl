@@ -476,11 +476,11 @@ void post_tx(void) {
 	*MACA_TMREN = (1 << maca_tmren_cpl);
 	
 	enable_irq(MACA);
-	*MACA_CONTROL = ( ( 4 << PRECOUNT) |
-			  ( prm_mode << PRM) |
-			  (maca_ctrl_mode_no_cca << maca_ctrl_mode) |
-			  (1 << maca_ctrl_asap) |
-			  (maca_ctrl_seq_tx));	
+//	*MACA_CONTROL = ( ( 4 << PRECOUNT) |
+//			  ( prm_mode << PRM) |
+//			  (maca_ctrl_mode_no_cca << maca_ctrl_mode) |
+//			  (1 << maca_ctrl_asap) |
+//			  (maca_ctrl_seq_tx));	
 	/* status bit 10 is set immediately */
         /* then 11, 10, and 9 get set */ 
         /* they are cleared once we get back to maca_isr */ 
@@ -516,8 +516,18 @@ void tx_packet(volatile packet_t *p) {
 uint8_t cca(void) {
 //	safe_irq_disable(MACA);
 	do_cca = 1;
+
+	/* disable soft timeout clock */
+	/* disable start clock */
+	*MACA_TMRDIS = (1 << maca_tmren_sft) | ( 1<< maca_tmren_cpl) | ( 1 << maca_tmren_strt ) ;	
+        /* set complete clock to long value */
+	/* acts like a watchdog in case the MACA locks up */
+	*MACA_CPLCLK = *MACA_CLK + (8*CLK_PER_BYTE);
+	/* enable complete clock */
+	*MACA_TMREN = (1 << maca_tmren_cpl) | (1 << maca_tmren_sft);
+
 	if(last_post == NO_POST) { *INTFRC = (1<<INT_NUM_MACA); }
-	if(last_post == RX_POST) { *MACA_SFTCLK = *MACA_CLK + CLK_PER_BYTE; }
+	if(last_post == RX_POST) { *MACA_SFTCLK = *MACA_CLK + 16 + CLK_PER_BYTE; }
 	/* somehow maca interrupts get disabled... */
 	/* make sure they are enabled */
 //	irq_restore();
@@ -525,7 +535,7 @@ uint8_t cca(void) {
 	while(last_post == RX_POST || last_post == TX_POST) { 
 		if (*MACA_CLK > *MACA_SFTCLK) {
 			*INTFRC = (1<<INT_NUM_MACA);
-			*MACA_SFTCLK = *MACA_CLK;
+			*MACA_SFTCLK = *MACA_CLK + 16;
 		}
 	}
 	while(*MACA_CLK < last_post_time + 32 + CLK_PER_BYTE) { continue; }
@@ -689,6 +699,8 @@ void maca_isr(void) {
 //	print_packets("maca_isr");
 	maca_entry++;
 
+	GPIO->DATA_RESET.GPIO_45 = 1;
+
 	if (bit_is_set(*MACA_STATUS, maca_status_ovr))
 	{ PRINTF("maca overrun\n\r"); }
 	if (bit_is_set(*MACA_STATUS, maca_status_busy))
@@ -799,24 +811,24 @@ void maca_isr(void) {
 	if(do_cca == 1) {
                 post_cca();
                 do_cca = 0;
-        } else if (last_post != CCA_POST &&
-                   (last_post_time + 16 < *MACA_CLK)) { 
+        } else if ((last_post != CCA_POST) && (last_post_time + 1024 < *MACA_CLK)) { 
+//if (last_post != CCA_POST &&
+
                 if(tx_head != 0) {
                         post_tx();
-                } else {
+		} else {
                         post_receive();
-                }
-        }
+		}
 
-//	} else {
+	} else if (last_post == NO_POST) {
 		/* nothing getting posted */
 		/* set a maca clock so that we come back eventually */
 		/* e.g. to post_receive */
 
-//		*MACA_CPLCLK = *MACA_CLK + 1;
+		*MACA_CPLCLK = *MACA_CLK + 32;
 		/* enable complete clock */
-//		*MACA_TMREN = (1 << maca_tmren_cpl);
-//	}
+		*MACA_TMREN = (1 << maca_tmren_cpl);
+	}
 
 }
 
