@@ -352,6 +352,7 @@ volatile packet_t* get_free_packet(void) {
 }
 
 void post_receive(void) {
+	*(volatile uint32_t *)(RF_BASE+0x20) |= ( 1 << 13); // use unbalanced port
 	GPIO->DATA_SET.GPIO_45 = 1;
 	last_post = RX_POST;
 	last_post_time = *MACA_CLK;
@@ -417,6 +418,7 @@ volatile packet_t* rx_packet(void) {
 
 void post_cca(void) 
 {
+	*(volatile uint32_t *)(RF_BASE+0x20) &= ~( 1 << 13); // use balanced port
 	GPIO->DATA_RESET.GPIO_45 = 1;
 	GPIO->DATA_SET.GPIO_43 = 1;
 	disable_irq(MACA);	
@@ -441,9 +443,11 @@ void post_cca(void)
 }
 
 void post_tx(void) {
+	*(volatile uint32_t *)(RF_BASE+0x20) |= ( 1 << 13); // use unbalanced port
 	/* set dma tx pointer to the payload */
 	/* and set the tx len */
 	GPIO->DATA_RESET.GPIO_45 = 1;
+//	GPIO->DATA_SET.GPIO_44 = 1;
 	disable_irq(MACA);
 	last_post = TX_POST;
 	last_post_time = *MACA_CLK;
@@ -476,11 +480,11 @@ void post_tx(void) {
 	*MACA_TMREN = (1 << maca_tmren_cpl);
 	
 	enable_irq(MACA);
-//	*MACA_CONTROL = ( ( 4 << PRECOUNT) |
-//			  ( prm_mode << PRM) |
-//			  (maca_ctrl_mode_no_cca << maca_ctrl_mode) |
-//			  (1 << maca_ctrl_asap) |
-//			  (maca_ctrl_seq_tx));	
+	*MACA_CONTROL = ( ( 4 << PRECOUNT) |
+			  ( prm_mode << PRM) |
+			  (maca_ctrl_mode_no_cca << maca_ctrl_mode) |
+			  (1 << maca_ctrl_asap) |
+			  (maca_ctrl_seq_tx));	
 	/* status bit 10 is set immediately */
         /* then 11, 10, and 9 get set */ 
         /* they are cleared once we get back to maca_isr */ 
@@ -749,6 +753,7 @@ void maca_isr(void) {
 
 		PRINTF("maca action complete %d\n\r", get_field(*MACA_CONTROL,SEQUENCE)); 
 		if(last_post == TX_POST) {
+//			GPIO->DATA_RESET.GPIO_44 = 1;
 			tx_head->status = get_field(*MACA_STATUS,CODE);
 
 #if MACA_INSERT_ACK
@@ -779,13 +784,13 @@ void maca_isr(void) {
 			if(maca_tx_callback != 0) { maca_tx_callback(tx_head); }
 			dma_tx = 0;
 			free_tx_head();
+			last_post_time = *MACA_CLK;
 			last_post = NO_POST;
 		}
 
  		if((last_post == CCA_POST)
 		   && (*MACA_CLK > last_post_time + 4))  
 		{
-			last_post_time = *MACA_CLK;
 			GPIO->DATA_RESET.GPIO_43 = 1;
 			if(bit_is_set(*MACA_STATUS, maca_status_busy)) {
 				GPIO->DATA_SET.GPIO_06 = 1;
@@ -796,10 +801,13 @@ void maca_isr(void) {
 				maca_busy = 0;
 				last_post = NO_POST;
 			}
+
+			last_post = NO_POST;
+			last_post_time = *MACA_CLK;
 		}
 
 		ResumeMACASync();
-		*MACA_CLRIRQ = (1 << maca_irq_acpl);		
+		*MACA_CLRIRQ = (1 << maca_irq_acpl);
 	}
 
 	decode_status();
@@ -901,7 +909,6 @@ void reset_maca(void)
 */
 
 /* tested and is good */
-#define RF_BASE 0x80009a00
 void flyback_init(void) {
 	uint32_t val8, or;
 	

@@ -108,7 +108,7 @@ uint32_t init_from_flash(uint32_t addr);
 #define MAX_PACKET_SIZE (MAX_PAYLOAD_SIZE + 2) /* packet includes 2 bytes of checksum */
 
 /* maca register and field defines */
-
+#define RF_BASE 0x80009a00
 #define MACA_BASE       (0x80004000)
 #define MACA_RESET      ((volatile uint32_t *) (MACA_BASE+0x04))
 #define MACA_RANDOM     ((volatile uint32_t *) (MACA_BASE+0x08))

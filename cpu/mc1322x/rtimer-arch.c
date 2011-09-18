@@ -47,7 +47,7 @@
 #include "sys/rtimer.h"
 
 /* mc1322x */
-#include "utils.h"
+#include "mc1322x.h"
 
 #define DEBUG 0
 #if DEBUG
