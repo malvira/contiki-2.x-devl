@@ -402,6 +402,9 @@ uint32_t p=(uint32_t)&__heap_end__-4;
 	GPIO->PAD_DIR_SET.GPIO_06 = 1;
 	GPIO->DATA_RESET.GPIO_06 = 1;
 
+	GPIO->PAD_DIR_SET.GPIO_08 = 1;
+	GPIO->DATA_RESET.GPIO_08 = 1;
+
 	/* Process subsystem */
 	process_init();
 	process_start(&etimer_process, NULL);

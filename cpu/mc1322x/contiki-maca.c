@@ -106,7 +106,15 @@ int contiki_maca_init(void) {
 }
 
 int contiki_maca_channel_clear(void) {
-	return cca();
+	uint8_t ret;
+	ret = cca();
+	if(ret) {
+		GPIO->DATA_SET.GPIO_08 = 1;
+	} else {
+		GPIO->DATA_RESET.GPIO_08 = 1;
+	}
+	return ret;
+//	return cca();
 //	return 1;
 }
 

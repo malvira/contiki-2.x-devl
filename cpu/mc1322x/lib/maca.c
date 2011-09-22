@@ -476,11 +476,11 @@ void post_tx(void) {
 	*MACA_TMREN = (1 << maca_tmren_cpl);
 	
 	enable_irq(MACA);
-//	*MACA_CONTROL = ( ( 4 << PRECOUNT) |
-//			  ( prm_mode << PRM) |
-//			  (maca_ctrl_mode_no_cca << maca_ctrl_mode) |
-//			  (1 << maca_ctrl_asap) |
-//			  (maca_ctrl_seq_tx));	
+	*MACA_CONTROL = ( ( 4 << PRECOUNT) |
+			  ( prm_mode << PRM) |
+			  (maca_ctrl_mode_no_cca << maca_ctrl_mode) |
+			  (1 << maca_ctrl_asap) |
+			  (maca_ctrl_seq_tx));	
 	/* status bit 10 is set immediately */
         /* then 11, 10, and 9 get set */ 
         /* they are cleared once we get back to maca_isr */ 
@@ -728,22 +728,28 @@ void maca_isr(void) {
 
 		add_to_rx(dma_rx);
 		dma_rx = 0;
+		ResumeMACASync();
+		return;
 	}
 	if (filter_failed_irq()) {
 		PRINTF("maca filter failed\n\r");
 		ResumeMACASync();
 		*MACA_CLRIRQ = (1 << maca_irq_flt);
+		return;
 	}
 	if (checksum_failed_irq()) {
 		PRINTF("maca checksum failed\n\r");
 		ResumeMACASync();
 		*MACA_CLRIRQ = (1 << maca_irq_crc);
+		return;
 	}
 	if (softclock_irq()) {
 		*MACA_CLRIRQ = (1 << maca_irq_sftclk);
+		return;
 	}
 	if (poll_irq()) {		
 		*MACA_CLRIRQ = (1 << maca_irq_poll);
+		return;
 	}
 	if(action_complete_irq()) {
 
