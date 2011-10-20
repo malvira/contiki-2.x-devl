@@ -266,8 +266,9 @@ time_exceeded(void)
   
   /* Calculate IP checksum. */
   ICMPBUF->ipchksum = 0;
+#if WITH_UIP
   ICMPBUF->ipchksum = ~(uip_ipchksum());
-
+#endif
 
 }
 /*------------------------------------------------------------------------------*/

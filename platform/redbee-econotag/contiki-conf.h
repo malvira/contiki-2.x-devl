@@ -118,10 +118,17 @@ typedef unsigned long rtimer_clock_t;
 
 #if WITH_UIP6
 /* Network setup for IPv6 */
+#ifndef NETSTACK_CONF_NETWORK
 #define NETSTACK_CONF_NETWORK sicslowpan_driver
+#endif
+#ifndef NETSTACK_CONF_MAC
 #define NETSTACK_CONF_MAC     nullmac_driver 
+#endif
 /*#define NETSTACK_CONF_RDC     contikimac_driver*/ /* contikimac for redbee hasn't been well tested */
+#ifndef NETSTACK_CONF_RDC
 #define NETSTACK_CONF_RDC     nullrdc_driver
+#endif
+#define
 #define NETSTACK_CONF_RADIO   contiki_maca_driver
 #define NETSTACK_CONF_FRAMER  framer_802154
 
@@ -133,9 +140,15 @@ typedef unsigned long rtimer_clock_t;
 #else /* WITH_UIP6 */
 /* Network setup for non-IPv6 (rime). */
 
-#define NETSTACK_CONF_NETWORK rime_driver
-#define NETSTACK_CONF_MAC     csma_driver
-#define NETSTACK_CONF_RDC     sicslowmac_driver
+#ifndef NETSTACK_CONF_NETWORK
+#define NETSTACK_CONF_NETWORK slip_driver
+#endif
+#ifndef NETSTACK_CONF_MAC
+#define NETSTACK_CONF_MAC     nullmac_driver
+#endif
+#ifndef NETSTACK_CONF_RDC
+#define NETSTACK_CONF_RDC     nullrdc_driver
+#endif
 #define NETSTACK_CONF_RADIO   contiki_maca_driver
 #define NETSTACK_CONF_FRAMER  framer_802154
 
@@ -195,9 +208,13 @@ typedef unsigned long rtimer_clock_t;
 #define UIP_CONF_ND6_REACHABLE_TIME     600000
 #define UIP_CONF_ND6_RETRANS_TIMER      10000
 
-#define UIP_CONF_IPV6                   1
+#ifndef UIP_CONF_IPV6
+#define UIP_CONF_IPV6                   0
+#endif
 #define UIP_CONF_IPV6_QUEUE_PKT         0
+#ifndef UIP_CONF_IPV6_CHECKS
 #define UIP_CONF_IPV6_CHECKS            1
+#endif
 #define UIP_CONF_IPV6_REASSEMBLY        0
 #define UIP_CONF_NETIF_MAX_ADDRESSES    3
 #define UIP_CONF_ND6_MAX_PREFIXES       3

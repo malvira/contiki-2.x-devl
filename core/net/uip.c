@@ -943,6 +943,7 @@ uip_process(u8_t flag)
   }
 
 #if !UIP_CONF_IPV6
+#if WITH_UIP
   if(uip_ipchksum() != 0xffff) { /* Compute and check the IP header
 				    checksum. */
     UIP_STAT(++uip_stat.ip.drop);
@@ -950,6 +951,7 @@ uip_process(u8_t flag)
     UIP_LOG("ip: bad checksum.");
     goto drop;
   }
+#endif
 #endif /* UIP_CONF_IPV6 */
 
   if(BUF->proto == UIP_PROTO_TCP) { /* Check for TCP packet. If so,
@@ -1917,7 +1919,9 @@ uip_process(u8_t flag)
   BUF->ipid[1] = ipid & 0xff;
   /* Calculate IP checksum. */
   BUF->ipchksum = 0;
+#if WITH_UIP
   BUF->ipchksum = ~(uip_ipchksum());
+#endif
   DEBUG_PRINTF("uip ip_send_nolen: chkecum 0x%04x\n", uip_ipchksum());
 #endif /* UIP_CONF_IPV6 */   
   UIP_STAT(++uip_stat.tcp.sent);

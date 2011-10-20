@@ -214,6 +214,7 @@ send_list(mac_callback_t sent, void *ptr, struct rdc_buf_list *buf_list)
 static void
 packet_input(void)
 {
+    PRINTF("nullrdc packet input\n\r");
 #if NULLRDC_802154_AUTOACK
   if(packetbuf_datalen() == ACK_LEN) {
     /* Ignore ack packets */
@@ -252,6 +253,7 @@ packet_input(void)
     rimeaddr_copy(&received_seqnos[0].sender,
                   packetbuf_addr(PACKETBUF_ADDR_SENDER));
 #endif /* NULLRDC_802154_AUTOACK */
+    PRINTF("nullrdc packet to mac\n\r");
     NETSTACK_MAC.input();
   }
 }
