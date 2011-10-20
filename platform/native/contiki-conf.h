@@ -51,15 +51,6 @@ typedef uint32_t u32_t;
 typedef  int32_t s32_t;
 typedef unsigned short uip_stats_t;
 
-#define UIP_CONF_UDP             1
-#define UIP_CONF_MAX_CONNECTIONS 40
-#define UIP_CONF_MAX_LISTENPORTS 40
-#define UIP_CONF_BUFFER_SIZE     420
-#define UIP_CONF_BYTE_ORDER      UIP_LITTLE_ENDIAN
-#define UIP_CONF_TCP       1
-#define UIP_CONF_TCP_SPLIT       1
-#define UIP_CONF_LOGGING         0
-#define UIP_CONF_UDP_CHECKSUMS   1
 
 #define WITH_UIP6 1
 #define UIP_CONF_IPV6 1
@@ -133,6 +124,7 @@ typedef unsigned long clock_time_t;
 
 #define LOG_CONF_ENABLED 1
 
+#define SLIP_CONF_TCPIP_INPUT slip_mac_input
 #define NETSTACK_CONF_NETWORK sicslowpan_driver
 #define NETSTACK_CONF_MAC     slipmac_driver 
 

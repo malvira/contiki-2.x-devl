@@ -117,6 +117,9 @@ slip_send(void)
         break; 
     } 
     c = *ptr++;
+    
+    printf("%02x ",c); 
+
     if(c == SLIP_END) {
       slip_arch_writeb(SLIP_ESC);
       c = SLIP_ESC_END;
@@ -269,7 +272,6 @@ PROCESS_THREAD(slip_process, ev, data)
     /* Move packet from rxbuf to buffer provided by uIP. */
     uip_len = slip_poll_handler(&uip_buf[UIP_LLH_LEN],
 				UIP_BUFSIZE - UIP_LLH_LEN);
-    printf("len: %d\n\r", uip_len);
 //#if !UIP_CONF_IPV6
 #if 0
     if(uip_len == 4 && strncmp((char*)&uip_buf[UIP_LLH_LEN], "?IPA", 4) == 0) {
@@ -306,9 +308,7 @@ PROCESS_THREAD(slip_process, ev, data)
       SLIP_STATISTICS(slip_ip_drop++);
     }
 #else /* UIP_CONF_IPV6 */
-    printf("a");
     if(uip_len > 0) {
-	        printf("b");
       if(input_callback) {
         input_callback();
       }
@@ -328,6 +328,7 @@ PROCESS_THREAD(slip_process, ev, data)
 int
 slip_input_byte(unsigned char c)
 {
+	printf("%02x ", c);
   switch(state) {
   case STATE_RUBBISH:
     if(c == SLIP_END) {
@@ -339,7 +340,6 @@ slip_input_byte(unsigned char c)
     return 0;
 
   case STATE_ESC:
-	  printf("X");
     if(c == SLIP_ESC_END) {
       c = SLIP_END;
     } else if(c == SLIP_ESC_ESC) {
@@ -358,7 +358,6 @@ slip_input_byte(unsigned char c)
       state = STATE_ESC;
       return 0;
     } else if(c == SLIP_END) {
-	    printf("E\n\r");
 	/*
 	 * We have a new packet, possibly of zero length.
 	 *

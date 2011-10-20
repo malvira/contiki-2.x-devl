@@ -93,6 +93,8 @@ main(void)
       }
     }
     
+    slip_arch_read();
+
     etimer_request_poll();
   }
   

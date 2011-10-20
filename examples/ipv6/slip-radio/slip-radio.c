@@ -14,6 +14,9 @@
 #include "dev/uart1.h"
 
 #define SLIP_END     0300
+#define SLIP_ESC     0333
+#define SLIP_ESC_END 0334
+#define SLIP_ESC_ESC 0335
 
 #define DEBUG 1
 #if DEBUG
@@ -51,6 +54,16 @@ slip_packetbuf_send(void)
   ptr = (u8_t *)packetbuf_dataptr();
   for(i = 0; i < packetbuf_datalen(); ++i) {
     c = *ptr++;
+
+    printf("%x ", c);
+
+    if(c == SLIP_END) {
+      slip_arch_writeb(SLIP_ESC);
+      c = SLIP_ESC_END;
+    } else if(c == SLIP_ESC) {
+      slip_arch_writeb(SLIP_ESC);
+      c = SLIP_ESC_ESC;
+    }
     slip_arch_writeb(c);
   }
   slip_arch_writeb(SLIP_END);
@@ -60,6 +73,7 @@ slip_packetbuf_send(void)
 static void
 input(void)
 {
+	printf("slip-radio input\n\r");
  slip_packetbuf_send();
 }
 

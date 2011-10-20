@@ -42,9 +42,10 @@ init(void)
   slip_set_input_callback(slip_input_callback);
 }
 
-static void
+void
 slip_mac_input(void)
 {
+	printf("slip_mac_input\n\r");
 	NETSTACK_NETWORK.input();
 }
 

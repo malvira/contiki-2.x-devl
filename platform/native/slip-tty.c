@@ -60,6 +60,7 @@
 #include "dev/slip.h"
 
 int slipfd;
+fd_set slipfds;
 int flowcontrol=0;
 
 void
@@ -113,7 +114,6 @@ void
 slip_arch_writeb(unsigned char c)
 {
 	write(slipfd, &c, 1);
-	printf("%02x ",c); //XXX temporary --- should open a /dev/tty with the serial calls
 }
 
 /*---------------------------------------------------------------------------*/
@@ -126,9 +126,30 @@ slip_arch_init(unsigned long ubr)
 {
 	char *siodev = "/dev/ttyUSB1";
 	slipfd = open(siodev, O_RDWR | O_NONBLOCK);
+	FD_ZERO(&slipfds);
+	FD_SET(slipfd, &slipfds);
 	if(slipfd == -1) {
 		err(1, "can't open siodev ``/dev/%s''", siodev);
 	}
 	set_stty(slipfd);
 }
 /*---------------------------------------------------------------------------*/
+
+void
+slip_arch_read(void)
+{
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 1000;
+
+//	if(select(1, &slipfds, NULL, NULL, &tv) < 0) {
+//		perror("select");
+//	} else if(FD_ISSET(slipfd, &slipfds)) {
+		uint8_t c;
+		if(read(slipfd, &c, 1) > 0) {
+//			printf("%02x ", c);
+			slip_input_byte(c);
+		}
+//	}
+
+}
