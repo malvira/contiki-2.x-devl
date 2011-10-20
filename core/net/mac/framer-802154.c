@@ -43,7 +43,7 @@
 #include "lib/random.h"
 #include <string.h>
 
-#define DEBUG 0
+#define DEBUG 1
 
 #if DEBUG
 #include <stdio.h>
@@ -159,7 +159,7 @@ create(void)
     frame802154_create(&params, packetbuf_hdrptr(), len);
 
     PRINTF("15.4-OUT: %2X", params.fcf.frame_type);
-    PRINTADDR(params.dest_addr.u8);
+//    PRINTADDR(params.dest_addr.u8);
     PRINTF("%u %u (%u)\n", len, packetbuf_datalen(), packetbuf_totlen());
 
     return len;

@@ -76,8 +76,8 @@
 #define SAMP UCON_SAMP_8X
 //#define SAMP UCON_SAMP_16X
 
-#define uart_init uart1_init
-#define dbg_putchar(x) uart1_putc(x)
+#define uart_init uart2_init
+#define dbg_putchar(x) uart2_putc(x)
 
 #define USE_FORMATTED_STDIO         1
 #define MACA_DEBUG                  0
@@ -95,6 +95,8 @@
 #endif
 
 /* end of mc1322x specific config. */
+
+#define SLIP_CONF_TCPIP_INPUT slip_radio_input
 
 /* start of conitki config. */
 #define PLATFORM_HAS_LEDS 1

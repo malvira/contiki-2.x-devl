@@ -34,6 +34,8 @@ packet_sent(void *ptr, int status, int num_tx)
 void 
 slip_radio_input(void)
 {
+	packetbuf_clear();
+	PRINTF("slip radio input\n\r");
 	NETSTACK_MAC.send(packet_sent, NULL);
 }
 
