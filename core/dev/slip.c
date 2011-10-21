@@ -118,7 +118,7 @@ slip_send(void)
     } 
     c = *ptr++;
     
-    printf("%02x ",c); 
+    printf("S%02x ",c); 
 
     if(c == SLIP_END) {
       slip_arch_writeb(SLIP_ESC);
@@ -226,7 +226,12 @@ slip_poll_handler(u8_t *outbuf, u16_t blen)
       if(len > blen) {
 	len = 0;
       } else {
+	      u16_t i;
+	      printf("memcpy (%d):", len);
 	memcpy(outbuf, &rxbuf[begin], len);
+	for (i = 0; i < len; i++) {
+		printf("%02x ", outbuf[i]);
+	}
       }
     } else {
       len = (RX_BUFSIZE - begin) + (pkt_end - 0);
@@ -236,9 +241,11 @@ slip_poll_handler(u8_t *outbuf, u16_t blen)
 	unsigned i;
 	for(i = begin; i < RX_BUFSIZE; i++) {
 	  *outbuf++ = rxbuf[i];
+	  printf("X%02x ", rxbuf[i]);
 	}
 	for(i = 0; i < pkt_end; i++) {
 	  *outbuf++ = rxbuf[i];
+	  printf("P%02x ", rxbuf[i]);
 	}
       }
     }
@@ -328,7 +335,7 @@ PROCESS_THREAD(slip_process, ev, data)
 int
 slip_input_byte(unsigned char c)
 {
-	printf("%02x ", c);
+	printf("I%02x ", c);
   switch(state) {
   case STATE_RUBBISH:
     if(c == SLIP_END) {
@@ -391,6 +398,7 @@ slip_input_byte(unsigned char c)
       end = pkt_end;		/* remove rubbish */
       return 0;
     }
+    printf("B%02x ",c);
     rxbuf[end] = c;
     end = next;
   }

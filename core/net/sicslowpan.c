@@ -69,7 +69,7 @@
 #include "net/neighbor-info.h"
 #include "net/netstack.h"
 
-#define DEBUG 0
+#define DEBUG 1
 #if DEBUG
 /* PRINTFI and PRINTFO are defined for input and output to debug one without changing the timing of the other */
 u8_t p;
