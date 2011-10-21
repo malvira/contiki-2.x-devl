@@ -492,7 +492,7 @@ compress_hdr_hc06(rimeaddr_t *rime_destaddr)
 {
   uint8_t tmp, iphc0, iphc1;
 #if DEBUG
-  PRINTF("before compression: ");
+  PRINTF("before compression (%d): ", UIP_IP_BUF->len[1]);
   for(tmp = 0; tmp < UIP_IP_BUF->len[1] + 40; tmp++) {
     uint8_t data = ((uint8_t *) (UIP_IP_BUF))[tmp];
     PRINTF("%02x", data);
@@ -754,6 +754,8 @@ compress_hdr_hc06(rimeaddr_t *rime_destaddr)
   hc06_ptr += SICSLOWPAN_NH_COMPRESSOR.compress(hc06_ptr, &uncomp_hdr_len);
 #endif
 
+  PRINTF("iphc0 %02x iphc1 %02x\n\r", iphc0, iphc1);
+
   /* before the rime_hdr_len operation */
   RIME_IPHC_BUF[0] = iphc0;
   RIME_IPHC_BUF[1] = iphc1;
@@ -761,9 +763,9 @@ compress_hdr_hc06(rimeaddr_t *rime_destaddr)
   rime_hdr_len = hc06_ptr - rime_ptr;
 
 #if DEBUG
-  PRINTF("after compression: ");
-  for(tmp = 0; tmp < UIP_IP_BUF->len[1] + 40; tmp++) {
-	  uint8_t data = ((uint8_t *) (UIP_IP_BUF))[tmp];
+  PRINTF("after compression (%d): ", rime_hdr_len);
+  for(tmp = 0; tmp < rime_hdr_len; tmp++) {
+	  uint8_t data = ((uint8_t *) (rime_ptr))[tmp];
 	  PRINTF("%02x", data);
   }
   PRINTF("\n");

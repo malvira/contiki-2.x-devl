@@ -17,6 +17,9 @@
 #include "net/netstack.h"
 #include "dev/slip.h"
 #include "dev/uart1.h"
+#include "net/uip.h"
+#include "net/rime.h"
+#include <string.h>
 
 #define SLIP_END     0300
 
@@ -49,6 +52,17 @@ slip_mac_input(void)
 	NETSTACK_NETWORK.input();
 }
 
+void
+slip_mac_send(void)
+{
+	/* the packet we want is now in the rime buffer */
+	/* but slip send will use the uip buffer */
+	/* copy it back and call slip_send */
+	memcpy(&uip_buf[UIP_LLH_LEN], packetbuf_dataptr(), packetbuf_datalen());
+	uip_len = packetbuf_datalen();
+	slip_send();
+}
+
 static int
 on(void)
 {
@@ -70,7 +84,7 @@ channel_check_interval(void)
 const struct mac_driver slipmac_driver = {
   "nullmac",
   init,
-  slip_send,
+  slip_mac_send,
   slip_mac_input,
   on,
   off,
