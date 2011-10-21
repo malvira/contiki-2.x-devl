@@ -118,7 +118,7 @@ slip_send(void)
     } 
     c = *ptr++;
     
-    printf("S%02x ",c); 
+//    printf("S%02x ",c); 
 
     if(c == SLIP_END) {
       slip_arch_writeb(SLIP_ESC);
@@ -279,6 +279,7 @@ PROCESS_THREAD(slip_process, ev, data)
     /* Move packet from rxbuf to buffer provided by uIP. */
     uip_len = slip_poll_handler(&uip_buf[UIP_LLH_LEN],
 				UIP_BUFSIZE - UIP_LLH_LEN);
+
 //#if !UIP_CONF_IPV6
 #if 0
     if(uip_len == 4 && strncmp((char*)&uip_buf[UIP_LLH_LEN], "?IPA", 4) == 0) {
@@ -320,7 +321,7 @@ PROCESS_THREAD(slip_process, ev, data)
         input_callback();
       }
 #ifdef SLIP_CONF_TCPIP_INPUT
-      printf("rx packet from slip\n\r");
+//      printf("rx packet from slip\n\r");
       SLIP_CONF_TCPIP_INPUT();
 #else
       tcpip_input();
@@ -335,7 +336,7 @@ PROCESS_THREAD(slip_process, ev, data)
 int
 slip_input_byte(unsigned char c)
 {
-	printf("I%02x ", c);
+//	printf("I%02x ", c);
   switch(state) {
   case STATE_RUBBISH:
     if(c == SLIP_END) {

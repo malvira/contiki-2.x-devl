@@ -25,7 +25,7 @@ PROJECT_SOURCEFILES += slip-mac.c slip.c tun-bridge.c
 #of the slip connection. Large MSS together with low baud rates without flow
 #control will overrun the transmit buffer when the style sheet is requested.
 
-WITH_WEBSERVER=0
+WITH_WEBSERVER=1
 ifeq ($(WITH_WEBSERVER),1)
 CFLAGS += -DWEBSERVER=1
 PROJECT_SOURCEFILES += httpd-simple.c

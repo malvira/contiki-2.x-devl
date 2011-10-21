@@ -48,8 +48,22 @@ init(void)
 void
 slip_mac_input(void)
 {
+	uint8_t i;
+	uint8_t *ptr;
 	printf("slip_mac_input\n\r");
-	NETSTACK_NETWORK.input();
+	/* the slip-radio sent up  the full 802.15.4 pack so */
+	/* that we could re-parse it here */
+	packetbuf_set_datalen(uip_len);
+	ptr = packetbuf_dataptr();
+        memcpy(ptr, &uip_buf[UIP_LLH_LEN], UIP_BUFSIZE);
+	
+	for(i = 0; i < packetbuf_datalen(); i++)
+	{
+		printf("%02x ", ptr[i]);
+	}
+
+	NETSTACK_FRAMER.parse();
+       	NETSTACK_NETWORK.input();
 }
 
 void

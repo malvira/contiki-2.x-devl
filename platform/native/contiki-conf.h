@@ -125,6 +125,7 @@ typedef unsigned long clock_time_t;
 #define SLIP_CONF_TCPIP_INPUT slip_mac_input
 #define NETSTACK_CONF_NETWORK sicslowpan_driver
 #define NETSTACK_CONF_MAC     slipmac_driver 
+#define NETSTACK_CONF_FRAMER  framer_802154
 
 /* Not part of C99 but actually present */
 int strcasecmp(const char*, const char*);

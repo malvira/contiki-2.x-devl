@@ -11,6 +11,7 @@
 #include "contiki.h"
 #include "net/uip.h"
 #include "net/netstack.h"
+#include "net/packetbuf.h"
 #include "dev/slip.h"
 #include "dev/uart1.h"
 #include <string.h>
@@ -59,8 +60,14 @@ slip_packetbuf_send(void)
 
   slip_arch_writeb(SLIP_END);
 
+
+
   ptr = (u8_t *)packetbuf_dataptr();
-  for(i = 0; i < packetbuf_datalen(); ++i) {
+  /* need to back the pointer up to put the 802.15.4 header back on */
+  ptr -= packetbuf_attr(PACKETBUF_ATTR_FRAMEHDR_LEN);
+
+  for(i = 0; i < packetbuf_datalen() + packetbuf_attr(PACKETBUF_ATTR_FRAMEHDR_LEN); ++i) {
+//  for(i = 0; i < packetbuf_datalen(); ++i) {
     c = *ptr++;
 
     printf("%x ", c);
@@ -82,7 +89,8 @@ static void
 input(void)
 {
 	printf("slip-radio input\n\r");
- slip_packetbuf_send();
+	
+	slip_packetbuf_send();
 }
 
 static void
