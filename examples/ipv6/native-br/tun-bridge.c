@@ -65,6 +65,8 @@
 #include <linux/if.h>
 #include <linux/if_tun.h>
 
+#define UIP_IP_BUF     ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
+
 int
 ssystem(const char *fmt, ...)
 {
@@ -132,10 +134,12 @@ init(void)
 static void
 output(void)
 {
-
+	printf("output len: %d\n\r", uip_len);
+	write(fd, (uint8_t *)UIP_IP_BUF, uip_len);
 }
 
-uint8_t tunbuf[1300];
+uint8_t tunbuf[2000];
+unsigned int idx = 0;
 
 void
 tun_arch_read(void)
@@ -150,11 +154,13 @@ tun_arch_read(void)
 //		perror("select");
 //	} else if(FD_ISSET(slipfd, &slipfds)) {
 
-		if(len = read(fd, &tunbuf, 1300) > 0) {
-			for(i = 0; i < len; i++) {
-				printf("%02x", tunbuf[i]);
-			}
-		}
+	if(len = read(fd, &tunbuf, 2000) > 0) {
+		memcpy((uint8_t *)UIP_IP_BUF, (uint8_t *)tunbuf, UIP_BUFSIZE);
+		uip_len = (((uint8_t*)UIP_IP_BUF)[4] << 8) + ((uint8_t *)UIP_IP_BUF)[5];
+		printf("len %d\n", uip_len);			
+		tcpip_input();
+	}
+
 //	}
 
 }
