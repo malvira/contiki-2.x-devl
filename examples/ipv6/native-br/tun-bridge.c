@@ -31,123 +31,136 @@
 
 /**
  * \file
- *         Slip fallback interface
+ *         TUN fallback interface
  * \author
- *         Niclas Finne <nfi@sics.se>
- *         Joakim Eriksson <joakime@sics.se>
- *         Joel Hoglund <joel@sics.se>
- *         Nicolas Tsiftes <nvt@sics.se>
+ *         (borrowed from tunslip6.c)
+ *         Mariano Alvira <mar@devl.org>         
  */
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <time.h>
+#include <sys/types.h>
+
+#include <unistd.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <termios.h>
+#include <sys/ioctl.h>
+
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+
+#include <err.h>
 
 #include "net/uip.h"
 #include "net/uip-ds6.h"
-#include "dev/slip.h"
-#include "dev/uart1.h"
-#include <string.h>
 
-#define UIP_IP_BUF        ((struct uip_ip_hdr *)&uip_buf[UIP_LLH_LEN])
+#include <linux/if.h>
+#include <linux/if_tun.h>
 
-#define DEBUG DEBUG_PRINT
-#include "net/uip-debug.h"
-
-void set_prefix_64(uip_ipaddr_t *);
-
-static uip_ipaddr_t last_sender;
-/*---------------------------------------------------------------------------*/
-static void
-slip_input_callback(void)
+int
+ssystem(const char *fmt, ...)
 {
-  PRINTF("SIN: %u\n", uip_len);
-  if(uip_buf[0] == '!') {
-    PRINTF("Got configuration message of type %c\n", uip_buf[1]);
-    uip_len = 0;
-    if(uip_buf[1] == 'P') {
-      uip_ipaddr_t prefix;
-      /* Here we set a prefix !!! */
-      memset(&prefix, 0, 16);
-      memcpy(&prefix, &uip_buf[2], 8);
-      PRINTF("Setting prefix ");
-      PRINT6ADDR(&prefix);
-      PRINTF("\n");
-      set_prefix_64(&prefix);
-    }
-  } else if (uip_buf[0] == '?') {
-    PRINTF("Got request message of type %c\n", uip_buf[1]);
-    if(uip_buf[1] == 'M') {
-      char* hexchar = "0123456789abcdef";
-      int j;
-      /* this is just a test so far... just to see if it works */
-      uip_buf[0] = '!';
-      for(j = 0; j < 8; j++) {
-        uip_buf[2 + j * 2] = hexchar[uip_lladdr.addr[j] >> 4];
-        uip_buf[3 + j * 2] = hexchar[uip_lladdr.addr[j] & 15];
-      }
-      uip_len = 18;
-      slip_send();
-      
-    }
-    uip_len = 0;
-  }
-  /* Save the last sender received over SLIP to avoid bouncing the
-     packet back if no route is found */
-  uip_ipaddr_copy(&last_sender, &UIP_IP_BUF->srcipaddr);
+  char cmd[128];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(cmd, sizeof(cmd), fmt, ap);
+  va_end(ap);
+  printf("%s\n", cmd);
+  fflush(stdout);
+  return system(cmd);
 }
-/*---------------------------------------------------------------------------*/
+
+static int fd;
 static void
 init(void)
 {
-  slip_arch_init(BAUD2UBR(115200));
-  process_start(&slip_process, NULL);
-  slip_set_input_callback(slip_input_callback);
+  struct ifreq ifr;
+  int err;
+  int tap = 0;
+  char dev[32] = { "" };
+  char *ipaddr = "aaaa::1/64";
+
+  printf("opening tun device as UIP fallback interface\n\r");
+
+  if(*dev == '\0') {
+    /* Use default. */
+    if(tap) {
+      strcpy(dev, "tap0");
+    } else {
+      strcpy(dev, "tun0");
+    }
+  }
+
+  if( (fd = open("/dev/net/tun", O_RDWR | O_NONBLOCK)) < 0 ) {
+	  printf("failed to open tun device\n\r");
+	  return;
+  }
+
+  memset(&ifr, 0, sizeof(ifr));
+
+  /* Flags: IFF_TUN   - TUN device (no Ethernet headers)
+   *        IFF_TAP   - TAP device
+   *
+   *        IFF_NO_PI - Do not provide packet information
+   */
+  ifr.ifr_flags = (tap ? IFF_TAP : IFF_TUN) | IFF_NO_PI;
+  if(*dev != 0)
+    strncpy(ifr.ifr_name, dev, IFNAMSIZ);
+
+  if((err = ioctl(fd, TUNSETIFF, (void *) &ifr)) < 0 ) {
+    close(fd);
+    printf("failed to set TUNSETIFF\n\r");
+    printf("maybe you don't have permission to create a tun device\n\r");
+    return;
+  }
+  strcpy(dev, ifr.ifr_name);
+
+  ssystem("ifconfig %s inet `hostname` up", dev);
+  ssystem("ifconfig %s add %s", dev, ipaddr);
+  ssystem("ifconfig %s\n", dev);
+
 }
-/*---------------------------------------------------------------------------*/
+
 static void
 output(void)
 {
-  if(uip_ipaddr_cmp(&last_sender, &UIP_IP_BUF->srcipaddr)) {
-    /* Do not bounce packets back over SLIP if the packet was received
-       over SLIP */
-    PRINTF("slip-bridge: Destination off-link but no route src=");
-    PRINT6ADDR(&UIP_IP_BUF->srcipaddr);
-    PRINTF(" dst=");
-    PRINT6ADDR(&UIP_IP_BUF->destipaddr);
-    PRINTF("\n");
-  } else {
-    PRINTF("SUT: %u\n", uip_len);
-    slip_send();
-  }
+
 }
 
-/*---------------------------------------------------------------------------*/
-#undef putchar
-int
-putchar(int c)
+uint8_t tunbuf[1300];
+
+void
+tun_arch_read(void)
 {
-#define SLIP_END     0300
-  static char debug_frame = 0;
+	struct timeval tv;
+	int i, len;
+	tv.tv_sec = 0;
+	tv.tv_usec = 1000;
+	
 
-  if(!debug_frame) {            /* Start of debug output */
-    slip_arch_writeb(SLIP_END);
-    slip_arch_writeb('\r');     /* Type debug line == '\r' */
-    debug_frame = 1;
-  }
+//	if(select(1, &slipfds, NULL, NULL, &tv) < 0) {
+//		perror("select");
+//	} else if(FD_ISSET(slipfd, &slipfds)) {
 
-  /* Need to also print '\n' because for example COOJA will not show
-     any output before line end */
-  slip_arch_writeb((char)c);
+		if(len = read(fd, &tunbuf, 1300) > 0) {
+			for(i = 0; i < len; i++) {
+				printf("%02x", tunbuf[i]);
+			}
+		}
+//	}
 
-  /*
-   * Line buffered output, a newline marks the end of debug output and
-   * implicitly flushes debug output.
-   */
-  if(c == '\n') {
-    slip_arch_writeb(SLIP_END);
-    debug_frame = 0;
-  }
-  return c;
 }
-/*---------------------------------------------------------------------------*/
+
+
 const struct uip_fallback_interface rpl_interface = {
   init, output
 };
-/*---------------------------------------------------------------------------*/
+

@@ -51,6 +51,7 @@ typedef uint32_t u32_t;
 typedef  int32_t s32_t;
 typedef unsigned short uip_stats_t;
 
+#define UIP_FALLBACK_INTERFACE rpl_interface
 
 #define WITH_UIP6 1
 #define UIP_CONF_IPV6 1

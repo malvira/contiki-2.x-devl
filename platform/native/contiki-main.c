@@ -111,6 +111,7 @@ main(void)
     }
     
     slip_arch_read();
+    tun_arch_read();
 
     etimer_request_poll();
   }
