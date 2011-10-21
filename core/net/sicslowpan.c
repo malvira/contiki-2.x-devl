@@ -759,6 +759,17 @@ compress_hdr_hc06(rimeaddr_t *rime_destaddr)
   RIME_IPHC_BUF[1] = iphc1;
 
   rime_hdr_len = hc06_ptr - rime_ptr;
+
+#if DEBUG
+  PRINTF("after compression: ");
+  for(tmp = 0; tmp < UIP_IP_BUF->len[1] + 40; tmp++) {
+	  uint8_t data = ((uint8_t *) (UIP_IP_BUF))[tmp];
+	  PRINTF("%02x", data);
+  }
+  PRINTF("\n");
+#endif
+
+
   return;
 }
 

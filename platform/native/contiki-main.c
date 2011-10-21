@@ -38,6 +38,7 @@
 #include <sys/select.h>
 
 #include "contiki.h"
+#include "contiki-net.h"
 #include "net/netstack.h"
 
 #include "dev/serial-line.h"
@@ -48,7 +49,7 @@
 #include "dev/pir-sensor.h"
 #include "dev/vib-sensor.h"
 
-PROCINIT(&etimer_process, &tcpip_process);
+PROCINIT(&etimer_process);
 
 SENSORS(&pir_sensor, &vib_sensor, &button_sensor);
 
@@ -56,6 +57,8 @@ SENSORS(&pir_sensor, &vib_sensor, &button_sensor);
 int
 main(void)
 {
+  rimeaddr_t addr;
+
   printf("Starting Contiki\n");
   process_init();
   ctimer_init();
@@ -65,6 +68,20 @@ main(void)
   procinit_init();
 
   serial_line_init();
+
+//00:50:C2:A8:C6:C8:3E:99
+  addr.u8[0] = 0;
+  addr.u8[1] = 0x50;
+  addr.u8[2] = 0xc2;
+  addr.u8[3] = 0xa8;
+  addr.u8[4] = 0xc6;
+  addr.u8[5] = 0xc8;
+  addr.u8[6] = 0x3e;
+  addr.u8[7] = 0x99;
+  rimeaddr_set_node_addr(&addr);
+  memcpy(&uip_lladdr.addr, &addr.u8, sizeof(uip_lladdr.addr));
+
+  process_start(&tcpip_process, NULL);
   
   autostart_start(autostart_processes);
 

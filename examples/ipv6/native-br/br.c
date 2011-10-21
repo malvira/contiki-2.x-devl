@@ -242,7 +242,7 @@ PROCESS_THREAD(border_router_process, ev, data)
 
   {
 	  uip_ipaddr_t prefix;
-	  uip_ip6addr(&prefix, 0xaaaa, 0, 0, 0, 0, 0, 0, 0);
+	  uip_ip6addr(&prefix, 0xaaaa, 0, 0, 0, 0, 0, 0, 1);
 	  PRINTF("Setting prefix ");
 	  PRINT6ADDR(&prefix);
 	  PRINTF("\n");
