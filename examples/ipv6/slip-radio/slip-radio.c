@@ -9,9 +9,11 @@
 #define SLIP_CONF_TCPIP_INPUT slip_radio_input
 
 #include "contiki.h"
+#include "net/uip.h"
 #include "net/netstack.h"
 #include "dev/slip.h"
 #include "dev/uart1.h"
+#include <string.h>
 
 #define SLIP_END     0300
 #define SLIP_ESC     0333
@@ -37,6 +39,13 @@ packet_sent(void *ptr, int status, int num_tx)
 void 
 slip_radio_input(void)
 {
+	uint8_t *ptr;	
+	packetbuf_clear();
+	ptr = (uint8_t *)packetbuf_dataptr();
+	memcpy(ptr,&uip_buf[UIP_LLH_LEN],
+	       uip_len);
+	packetbuf_set_datalen(uip_len);
+	       
 	PRINTF("slip radio input\n\r");
 	NETSTACK_MAC.send(packet_sent, NULL);
 }
