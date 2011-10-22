@@ -64,6 +64,7 @@ slip_packetbuf_send(void)
 
   ptr = (u8_t *)packetbuf_dataptr();
   /* need to back the pointer up to put the 802.15.4 header back on */
+  printf("back up dataptr by %d\n\r", packetbuf_attr(PACKETBUF_ATTR_FRAMEHDR_LEN));
   ptr -= packetbuf_attr(PACKETBUF_ATTR_FRAMEHDR_LEN);
 
   for(i = 0; i < packetbuf_datalen() + packetbuf_attr(PACKETBUF_ATTR_FRAMEHDR_LEN); ++i) {
@@ -82,6 +83,8 @@ slip_packetbuf_send(void)
     slip_arch_writeb(c);
   }
   slip_arch_writeb(SLIP_END);
+
+  packetbuf_clear();
 
 }
 

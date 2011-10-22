@@ -179,7 +179,6 @@ parse(void)
   len = packetbuf_datalen();
   if(frame802154_parse(packetbuf_dataptr(), len, &frame) &&
      packetbuf_hdrreduce(len - frame.payload_len)) {
-	  packetbuf_set_attr(PACKETBUF_ATTR_FRAMEHDR_LEN, frame.payload_len + 5); 
     if(frame.fcf.dest_addr_mode) {
       if(frame.dest_pid != mac_src_pan_id &&
          frame.dest_pid != FRAME802154_BROADCASTPANDID) {
@@ -201,6 +200,7 @@ parse(void)
     PRINTADDR(packetbuf_addr(PACKETBUF_ADDR_RECEIVER));
     PRINTF("%u (%u)\n", packetbuf_datalen(), len);
 
+    packetbuf_set_attr(PACKETBUF_ATTR_FRAMEHDR_LEN, len - frame.payload_len); 
     return len - frame.payload_len;
   }
   return 0;
