@@ -69,11 +69,34 @@ slip_mac_input(void)
 void
 slip_mac_send(void)
 {
+	rimeaddr_t addr;
 	/* the packet we want is now in the rime buffer */
 	/* but slip send will use the uip buffer */
 	/* copy it back and call slip_send */
 	memcpy(&uip_buf[UIP_LLH_LEN], packetbuf_dataptr(), packetbuf_datalen());
 	uip_len = packetbuf_datalen();
+	
+	/* append PACKETBUF_ADDR_RECEIVER */
+	/* this gets stripped by slip radio which re-sets the packetbuf_attr for */
+	/* framer802154 */
+
+	rimeaddr_copy(&addr,packetbuf_addr(PACKETBUF_ADDR_RECEIVER));
+
+#if DEBUG
+	{
+		int i;
+		PRINTF("ADDR_RECEIVER ");		
+		for (i = 0; i < RIMEADDR_SIZE; i++) {
+			PRINTF("%02x:",addr.u8[i]);
+		}
+		PRINTF("\n\r");
+
+	}
+#endif
+
+	memcpy(&uip_buf[UIP_LLH_LEN + uip_len],&addr, sizeof(rimeaddr_t));
+	uip_len += sizeof(rimeaddr_t);
+
 	slip_send();
 }
 

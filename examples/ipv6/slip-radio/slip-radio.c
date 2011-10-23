@@ -41,11 +41,28 @@ void
 slip_radio_input(void)
 {
 	uint8_t *ptr;	
+	rimeaddr_t addr;
 	packetbuf_clear();
 	ptr = (uint8_t *)packetbuf_dataptr();
 	memcpy(ptr,&uip_buf[UIP_LLH_LEN],
 	       uip_len);
-	packetbuf_set_datalen(uip_len);
+
+	memcpy(&addr, &uip_buf[uip_len - sizeof(rimeaddr_t)], sizeof(rimeaddr_t));
+
+#if DEBUG
+	{
+		int i;
+		PRINTF("ADDR_RECEIVER ");		
+		for (i = 0; i < RIMEADDR_SIZE; i++) {
+			PRINTF("%02x:",addr.u8[i]);
+		}
+		PRINTF("\n\r");
+
+	}
+#endif
+	
+	packetbuf_set_addr(PACKETBUF_ADDR_RECEIVER, &addr);
+	packetbuf_set_datalen(uip_len -  sizeof(rimeaddr_t));
 	       
 	PRINTF("slip radio input\n\r");
 	NETSTACK_MAC.send(packet_sent, NULL);
